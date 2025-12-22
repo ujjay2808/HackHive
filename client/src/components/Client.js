@@ -1,12 +1,18 @@
 import React from 'react';
 import Avatar from 'react-avatar';
+import './Client.css';
 
-function Client({username}) {
-
+function Client({ username }) {
   return (
-    <div className="d-flex align-items-center mb-3">
-      <Avatar name={username.toString()} size={50} round="14px" className="mr-3" />
-      <span className='mx-2'>{username.toString()}</span>
+    <div className="client-container">
+      <div className="client-avatar">
+        <Avatar 
+          name={username.toString()} 
+          size={40} 
+          round="10px" 
+        />
+      </div>
+      <span className="client-username">{username.toString()}</span>
     </div>
   );
 }

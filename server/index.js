@@ -8,23 +8,21 @@ const axios = require("axios");
 const server = http.createServer(app);
 require("dotenv").config();
 
-const languageConfig = {
-  python3: { versionIndex: "3" },
-  java: { versionIndex: "3" },
-  cpp: { versionIndex: "4" },
-  nodejs: { versionIndex: "3" },
-  c: { versionIndex: "4" },
-  ruby: { versionIndex: "3" },
-  go: { versionIndex: "3" },
-  scala: { versionIndex: "3" },
-  bash: { versionIndex: "3" },
-  sql: { versionIndex: "3" },
-  pascal: { versionIndex: "2" },
-  csharp: { versionIndex: "3" },
-  php: { versionIndex: "3" },
-  swift: { versionIndex: "3" },
-  rust: { versionIndex: "3" },
-  r: { versionIndex: "3" },
+// Piston API language mapping
+const languageMapping = {
+  python3: "python",
+  javascript: "javascript",
+  typescript: "typescript",
+  java: "java",
+  cpp: "c++",
+  c: "c",
+  csharp: "csharp",
+  ruby: "ruby",
+  go: "go",
+  rust: "rust",
+  php: "php",
+  swift: "swift",
+  sql: "sqlite3",
 };
 
 // Enable CORS
@@ -53,12 +51,14 @@ const getAllConnectedClients = (roomId) => {
 };
 
 io.on("connection", (socket) => {
-  // console.log('Socket connected', socket.id);
+  console.log('Socket connected', socket.id);
+  
   socket.on(ACTIONS.JOIN, ({ roomId, username }) => {
     userSocketMap[socket.id] = username;
     socket.join(roomId);
     const clients = getAllConnectedClients(roomId);
-    // notify that new user join
+    
+    // Notify that new user joined
     clients.forEach(({ socketId }) => {
       io.to(socketId).emit(ACTIONS.JOINED, {
         clients,
@@ -68,19 +68,26 @@ io.on("connection", (socket) => {
     });
   });
 
-  // sync the code
+  // Sync the code
   socket.on(ACTIONS.CODE_CHANGE, ({ roomId, code }) => {
     socket.in(roomId).emit(ACTIONS.CODE_CHANGE, { code });
   });
-  // when new user join the room all the code which are there are also shows on that persons editor
+
+  // Sync language changes
+  socket.on(ACTIONS.LANGUAGE_CHANGE, ({ roomId, language }) => {
+    socket.in(roomId).emit(ACTIONS.LANGUAGE_CHANGE, { language });
+  });
+
+  // When new user joins, sync code
   socket.on(ACTIONS.SYNC_CODE, ({ socketId, code }) => {
     io.to(socketId).emit(ACTIONS.CODE_CHANGE, { code });
   });
 
-  // leave room
+  // Leave room
   socket.on("disconnecting", () => {
     const rooms = [...socket.rooms];
-    // leave all the room
+    
+    // Leave all the rooms
     rooms.forEach((roomId) => {
       socket.in(roomId).emit(ACTIONS.DISCONNECTED, {
         socketId: socket.id,
@@ -93,24 +100,38 @@ io.on("connection", (socket) => {
   });
 });
 
+// Compile endpoint using Piston API (FREE!)
 app.post("/compile", async (req, res) => {
   const { code, language } = req.body;
 
   try {
-    const response = await axios.post("https://api.jdoodle.com/v1/execute", {
-      script: code,
-      language: language,
-      versionIndex: languageConfig[language].versionIndex,
-      clientId: process.env.jDoodle_clientId,
-      clientSecret: process.env.kDoodle_clientSecret,
+    const pistonLanguage = languageMapping[language] || language;
+    
+    const response = await axios.post("https://emkc.org/api/v2/piston/execute", {
+      language: pistonLanguage,
+      version: "*", // Use latest version
+      files: [
+        {
+          content: code,
+        },
+      ],
     });
 
-    res.json(response.data);
+    // Format the response
+    const output = response.data.run.output || response.data.run.stderr || "No output";
+    
+    res.json({
+      output: output,
+      language: pistonLanguage,
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to compile code" });
+    console.error("Compilation error:", error.response?.data || error.message);
+    res.status(500).json({ 
+      error: "Failed to compile code",
+      details: error.response?.data?.message || error.message 
+    });
   }
 });
 
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`Server is runnint on port ${PORT}`));
+const PORT = process.env.PORT || 5001;
+server.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
