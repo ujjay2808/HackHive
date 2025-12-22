@@ -242,7 +242,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👨‍💻 Author
 
 **Ujjay Manety**
-- GitHub: [@ujjay2808](https://github.com/ujjay2808)
+- GitHub: [@ujjay_2808](https://github.com/ujjay2808)
 - LinkedIn: [Ujjay Manety](https://www.linkedin.com/in/ujjay-manety-a70589331/)
 
 

@@ -4,9 +4,10 @@
   "description": "HackHive - Real-time collaborative coding platform",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js"
-  },
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "start": "node index.js",
+  "dev": "nodemon index.js"
+},
   "author": "Ujjay Manety",
   "license": "MIT",
   "dependencies": {

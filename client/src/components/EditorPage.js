@@ -120,7 +120,7 @@ function EditorPage() {
   const handleLanguageChange = (e) => {
     const newLanguage = e.target.value;
     setSelectedLanguage(newLanguage);
-    
+
     // Emit language change to all users in the room
     socketRef.current.emit(ACTIONS.LANGUAGE_CHANGE, {
       roomId,
@@ -131,7 +131,8 @@ function EditorPage() {
   const runCode = async () => {
     setIsCompiling(true);
     try {
-      const response = await axios.post("http://localhost:5001/compile", {
+      const backendURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5001';
+      const response = await axios.post(`${backendURL}/compile`, {
         code: codeRef.current,
         language: selectedLanguage,
       });
