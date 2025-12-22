@@ -242,8 +242,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👨‍💻 Author
 
 **Ujjay Manety**
-- GitHub: [@YOUR_USERNAME](https://github.com/ujjay2808)
-- LinkedIn: [Your LinkedIn](https://www.linkedin.com/in/ujjay-manety-a70589331/)
+- GitHub: [@ujjay2808](https://github.com/ujjay2808)
+- LinkedIn: [Ujjay Manety](https://www.linkedin.com/in/ujjay-manety-a70589331/)
 
 
 ---
