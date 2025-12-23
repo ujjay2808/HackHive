@@ -26,21 +26,42 @@ const languageMapping = {
 };
 
 // Enable CORS
+// Enable CORS
 app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:3000",
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Allow localhost for development
+    if (origin.includes('localhost')) return callback(null, true);
+    
+    // Allow all Vercel preview URLs and production URL
+    if (origin.includes('vercel.app')) return callback(null, true);
+    
+    // Allow Render backend (for testing)
+    if (origin.includes('onrender.com')) return callback(null, true);
+    
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
 }));
 
-// Parse JSON bodies
-app.use(express.json());
-
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: function(origin, callback) {
+      if (!origin) return callback(null, true);
+      if (origin.includes('localhost')) return callback(null, true);
+      if (origin.includes('vercel.app')) return callback(null, true);
+      if (origin.includes('onrender.com')) return callback(null, true);
+      callback(new Error('Not allowed by CORS'));
+    },
     methods: ["GET", "POST"],
     credentials: true,
   },
 });
+
+// Parse JSON bodies
+app.use(express.json());
 
 const userSocketMap = {};
 const getAllConnectedClients = (roomId) => {
